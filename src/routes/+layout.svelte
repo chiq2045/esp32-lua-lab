@@ -54,6 +54,6 @@
 	</nav>
 </header>
 
-<main class="h-full bg-base-200">
+<main class="h-full grow bg-base-200 p-2 md:p-4">
 	{@render children()}
 </main>
