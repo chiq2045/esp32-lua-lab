@@ -71,12 +71,13 @@ function createProjectState() {
 		}
 
 		project.components.push(component);
+		rebuildWires();
 		touch();
 
 		return component;
 	}
 
-	function updateComponent(id: string, changes: Partial<CircuitComponent>) {
+	function updateComponent(id: string, changes: Partial<Pick<CircuitComponent, 'name' | 'color'>>) {
 		const component = project.components.find((item) => item.id === id);
 
 		if (!component) return;
@@ -89,7 +90,7 @@ function createProjectState() {
 		project.components = project.components.filter((component) => component.id !== id);
 
 		project.wires = project.wires.filter((wire) => wire.componentId !== id);
-
+		rebuildWires();
 		touch();
 	}
 
@@ -202,6 +203,55 @@ function createProjectState() {
 		touch();
 	}
 
+	function rebuildWires() {
+		project.wires = project.components.flatMap((component) => {
+			if (component.pin === undefined) return [];
+
+			return [
+				{
+					id: `${component.id}-signal`,
+					componentId: component.id,
+					pin: component.pin,
+					kind: 'signal' as const
+				},
+				{
+					id: `${component.id}-ground`,
+					componentId: component.id,
+					pin: 'GND' as const,
+					kind: 'ground' as const
+				}
+			];
+		});
+	}
+
+	function setComponentPin(id: string, pin?: number) {
+		const component = project.components.find((item) => item.id === id);
+
+		if (!component) return;
+
+		if (
+			pin !== undefined &&
+			project.components.some((item) => item.id !== id && item.pin === pin)
+		) {
+			throw new Error(`GPIO ${pin} is already assigned.`);
+		}
+
+		component.pin = pin;
+		rebuildWires();
+		touch();
+	}
+
+	function moveComponent(id: string, x: number, y: number) {
+		const component = project.components.find((item) => item.id === id);
+
+		if (!component) return;
+
+		component.x = Math.max(0, Math.round(x));
+		component.y = Math.max(0, Math.round(y));
+
+		touch();
+	}
+
 	return {
 		get project() {
 			return project;
@@ -222,7 +272,9 @@ function createProjectState() {
 		save,
 		load,
 		addMessage,
-		clearMessages
+		clearMessages,
+		setComponentPin,
+		moveComponent
 	};
 }
 
