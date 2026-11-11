@@ -157,6 +157,51 @@ function createProjectState() {
 		messages = [];
 	}
 
+	function exportProject() {
+		const data = JSON.stringify($state.snapshot(project), null, 2);
+
+		const blob = new Blob([data], {
+			type: 'application/json'
+		});
+
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+
+		link.href = url;
+		link.download = 'esp32-project.json';
+		link.click();
+
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
+	}
+
+	async function importProject(file: File) {
+		const text = await file.text();
+		const data: unknown = JSON.parse(text);
+
+		// Basic validation for the project format.
+		if (
+			typeof data !== 'object' ||
+			data === null ||
+			!('version' in data) ||
+			data.version !== 1 ||
+			!('components' in data) ||
+			!Array.isArray(data.components) ||
+			!('wires' in data) ||
+			!Array.isArray(data.wires) ||
+			!('code' in data) ||
+			typeof data.code !== 'string' ||
+			!('wiringMode' in data) ||
+			!['auto', 'manual'].includes(String(data.wiringMode))
+		) {
+			throw new Error('Invalid ESP32 project file');
+		}
+
+		// A full schema validator should be added before
+		// importing files from untrusted sources.
+		project = data as unknown as Project;
+		touch();
+	}
+
 	return {
 		get project() {
 			return project;

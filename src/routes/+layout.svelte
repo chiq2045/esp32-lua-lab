@@ -2,6 +2,7 @@
 	import './layout.css';
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
+	import { projectState } from '#lib/state/project.svelte.ts';
 
 	let { children }: LayoutProps = $props();
 </script>
@@ -15,8 +16,22 @@
 		<div class="navbar-start">
 			<h1 class="text-xl font-semibold">ESP32 Lua Lab</h1>
 		</div>
+		<div class="navbar-center gap-2">
+			<label class="input">
+				Project Name
+				<input
+					type="text"
+					class="grow"
+					placeholder="src/app/"
+					bind:value={projectState.project.name}
+				/>
+			</label>
+			<span class="text-xs text-slate-500">
+				{projectState.dirty ? 'Unsaved' : 'Saved'}
+			</span>
+		</div>
 		<div class="navbar-end gap-2">
-			<button class="btn btn-soft btn-neutral">
+			<button class="btn btn-soft btn-neutral" onclick={() => projectState.save()}>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
