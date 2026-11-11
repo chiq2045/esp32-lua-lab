@@ -33,5 +33,16 @@
 		"tailwindcss": "^4.3.0",
 		"typescript": "^6.0.3",
 		"vite": "^8.3.0"
+	},
+	"dependencies": {
+		"@codemirror/autocomplete": "^6.20.4",
+		"@codemirror/commands": "^6.11.1",
+		"@codemirror/language": "^6.13.1",
+		"@codemirror/lint": "^6.9.7",
+		"@codemirror/state": "^6.7.6",
+		"@codemirror/view": "^6.43.15",
+		"@codincod/codemirror-lang-lua": "^0.3.0",
+		"@uiw/codemirror-themes-all": "^4.25.12",
+		"codemirror": "^6.0.2"
 	}
 }

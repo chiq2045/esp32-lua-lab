@@ -1,10 +1,13 @@
 <script lang="ts">
+	import CodeEditor from '#lib/components/code-editor.svelte';
+
 	type Tabs = 'code' | 'design' | 'console' | 'settings';
 	let selectedView = $state<Tabs>('code');
 
 	const changeView = (view: Tabs) => {
 		selectedView = view;
 	};
+	let doc = $state(`-- this is a test`);
 </script>
 
 <div class="flex h-full flex-col gap-4">
@@ -95,7 +98,8 @@
 			tabindex={selectedView === 'code' ? 0 : undefined}
 			hidden={selectedView !== 'code'}
 		>
-			<p>This is the Code View</p>
+			<h2 class="font-mono">main.lua</h2>
+			<CodeEditor {doc} />
 		</div>
 		<div
 			role="tabpanel"
