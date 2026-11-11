@@ -20,15 +20,21 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { lua } from '@codincod/codemirror-lang-lua';
 	import { whiteLight } from '@uiw/codemirror-themes-all';
+	import type { CircuitComponent } from '#lib/simulator/component-api.ts';
 
-	let { doc }: { doc: string | Text } = $props();
+	interface Props {
+		code: string | Text;
+		components: CircuitComponent[];
+		onCodeChange: (code: string) => void;
+	}
+	let { code, components, onCodeChange }: Props = $props();
 
 	let view: EditorView | null = null;
 	let parent: HTMLDivElement | null = null;
 
 	onMount(() => {
 		view = new EditorView({
-			doc,
+			doc: code,
 			// @ts-expect-error paent will have HTMLDivElement type when component is mounted
 			parent,
 			extensions: [
@@ -44,6 +50,11 @@
 				autocompletion(),
 				highlightActiveLine(),
 				highlightActiveLineGutter(),
+				EditorView.updateListener.of((update) => {
+					if (update.docChanged) {
+						onCodeChange(update.state.doc.toString());
+					}
+				}),
 				keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...completionKeymap]),
 				whiteLight
 			]

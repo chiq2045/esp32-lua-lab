@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CodeEditor from '#lib/components/code-editor.svelte';
+	import { type CircuitComponent } from '#lib/simulator/component-api.ts';
 
 	type Tabs = 'code' | 'design' | 'console' | 'settings';
 	let selectedView = $state<Tabs>('code');
@@ -7,7 +8,11 @@
 	const changeView = (view: Tabs) => {
 		selectedView = view;
 	};
-	let doc = $state(`-- this is a test`);
+	let code = $state(`-- this is a test`);
+	let components = $state<CircuitComponent[]>([]);
+	const onCodeChange = (v: string) => {
+		code = v;
+	};
 </script>
 
 <div class="flex h-full flex-col gap-4">
@@ -99,7 +104,7 @@
 			hidden={selectedView !== 'code'}
 		>
 			<h2 class="font-mono">main.lua</h2>
-			<CodeEditor {doc} />
+			<CodeEditor {code} {onCodeChange} {components} />
 		</div>
 		<div
 			role="tabpanel"
