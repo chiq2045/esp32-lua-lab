@@ -1,4 +1,5 @@
-export type ComponentType = 'led' | 'button';
+import type { ComponentType } from '#lib/types/project.ts';
+
 export interface CircuitComponent {
 	id: string;
 	name: string;
