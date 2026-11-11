@@ -1,3 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+@plugin 'daisyui' {
+	themes: nord --default;
+	logs: false;
+}
+
+@theme {
+	--font-sans: 'Nunito sans', sans-serif;
+	--font-serif: 'Lora', serif;
+	--font-mono: 'Fira Mono', monospace;
+	--font-display: 'Montserrat', sans-serif;
+}
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
