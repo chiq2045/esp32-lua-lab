@@ -1,5 +1,4 @@
 <script lang="ts">
-	import CodeEditor from '#lib/components/code-editor.svelte';
 	import CodeTab from '#lib/components/code-tab.svelte';
 	import ConsoleTab from '#lib/components/console-tab.svelte';
 	import DesignTab from '#lib/components/design-tab.svelte';
@@ -35,11 +34,6 @@
 
 	const changeView = (view: Tab) => {
 		activeTab = view;
-	};
-	let code = $state(`-- this is a test`);
-	let components = $state<CircuitComponent[]>([]);
-	const onCodeChange = (v: string) => {
-		code = v;
 	};
 
 	onMount(() => {

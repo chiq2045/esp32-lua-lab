@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CodeEditor from '#lib/editor/code-editor.svelte';
 	import { projectState } from '#lib/state/project.svelte.ts';
 
 	let { onRun }: { onRun: () => void } = $props();
@@ -14,12 +15,7 @@
 		<button class="rounded bg-green-600 px-4 py-2 text-white" onclick={onRun}> Run </button>
 	</header>
 
-	<textarea
-		class="min-h-96 w-full flex-1 rounded border
-           bg-slate-950 p-4 font-mono text-green-300"
-		spellcheck="false"
-		value={projectState.project.code}
-		oninput={(event) => projectState.setCode(event.currentTarget.value)}></textarea>
+	<CodeEditor />
 
 	<p class="text-sm opacity-60">
 		Available components:
