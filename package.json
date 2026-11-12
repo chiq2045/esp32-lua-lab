@@ -47,6 +47,7 @@
 		"@wokwi/elements": "^1.9.2",
 		"codemirror": "^6.0.2",
 		"fengari": "^0.1.5",
-		"fengari-web": "^0.1.4"
+		"fengari-web": "^0.1.4",
+		"runed": "^0.38.0"
 	}
 }

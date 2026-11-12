@@ -3,8 +3,39 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
 	import { projectState } from '#lib/state/project.svelte.ts';
+	import { PersistedState } from 'runed';
+	import type { Project, SavedProjects } from '#lib/types/project.ts';
+	import LoadProjectsModal from '#lib/components/load-projects-modal.svelte';
 
+	const STORAGE_KEY = 'esp32-lua-lab:projects';
 	let { children }: LayoutProps = $props();
+
+	const savedProjects = new PersistedState<SavedProjects>(STORAGE_KEY, {});
+	let savedTimer = null;
+	let showSavedMessage = $state(false);
+
+	const saveProject = (project: Project) => {
+		savedProjects.current[project.name] = $state.snapshot(project);
+		savedTimer = setTimeout(() => {
+			showSavedMessage = false;
+		}, 5000);
+		showSavedMessage = true;
+	};
+
+	const loadProject = (projectName: string) => {
+		return savedProjects.current[projectName] ?? null;
+	};
+
+	const getListOfSavedProjects = () => {
+		return Object.keys(savedProjects.current);
+	};
+
+	const deleteProject = (projectName: string) => {
+		delete savedProjects.current[projectName];
+	};
+
+	let loadProjectDialog = $state<HTMLDialogElement | null>(null);
+	let projects = $state<string[]>([]);
 </script>
 
 <svelte:head>
@@ -26,12 +57,23 @@
 					bind:value={projectState.project.name}
 				/>
 			</label>
-			<span class="text-xs text-slate-500">
-				{projectState.dirty ? 'Unsaved' : 'Saved'}
-			</span>
+			<div class="flex flex-col items-center gap-1">
+				<!-- <span class="text-xs text-slate-500"> -->
+				<!-- 	{projectState.dirty ? 'Unsaved' : 'Saved'} -->
+				<!-- </span> -->
+				{#if showSavedMessage}
+					<span class="text-xs text-slate-500">Saved!</span>
+				{/if}
+			</div>
 		</div>
 		<div class="navbar-end gap-2">
-			<button class="btn btn-soft btn-neutral" onclick={() => projectState.save()}>
+			<button
+				class="btn btn-soft btn-neutral"
+				onclick={() => {
+					projectState.save();
+					saveProject(projectState.project);
+				}}
+			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -48,7 +90,13 @@
 				</svg>
 				<span>Save</span>
 			</button>
-			<button class="btn btn-soft btn-neutral">
+			<button
+				class="btn btn-soft btn-neutral"
+				onclick={() => {
+					projects = getListOfSavedProjects();
+					loadProjectDialog?.showModal();
+				}}
+			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -71,4 +119,6 @@
 
 <main class="h-full grow bg-base-200 p-2 md:p-4">
 	{@render children()}
+
+	<LoadProjectsModal bind:dialog={loadProjectDialog} {loadProject} {projects} />
 </main>

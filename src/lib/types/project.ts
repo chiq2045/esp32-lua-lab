@@ -40,3 +40,5 @@ export interface Project {
 	wiringMode: WiringMode;
 	updatedAt: number;
 }
+
+export type SavedProjects = Record<string, Project>;
