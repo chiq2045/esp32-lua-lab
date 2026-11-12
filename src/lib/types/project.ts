@@ -11,6 +11,11 @@ export interface CircuitComponent {
 	color?: string;
 }
 
+export interface RuntimeComponent extends CircuitComponent {
+	on: boolean;
+	pressed: boolean;
+}
+
 export interface CircuitWire {
 	id: string;
 	componentId: string;

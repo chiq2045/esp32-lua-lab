@@ -2,13 +2,15 @@
 	import CodeTab from '#lib/components/code-tab.svelte';
 	import ConsoleTab from '#lib/components/console-tab.svelte';
 	import DesignTab from '#lib/components/design-tab.svelte';
-	import { type CircuitComponent } from '#lib/simulator/component-api.ts';
+	import SimulationModal from '#lib/simulator/simulation-modal.svelte';
+	import { simulator } from '#lib/simulator/simulator.svelte.ts';
 	import { projectState } from '#lib/state/project.svelte.ts';
 	import type { Tab, TabLabel } from '#lib/types/tabs.ts';
 	import { onMount } from 'svelte';
 
 	let activeTab = $state<Tab>('code');
 	let ready = $state(false);
+	let simulationModal = $state<HTMLDialogElement | null>(null);
 
 	const tabs: TabLabel[] = [
 		{
@@ -54,10 +56,32 @@
 		return () => clearTimeout(timer);
 	});
 
-	const run = () => {
-		projectState.addMessage('info', 'Simulation engine is not connected yet.');
-		activeTab = 'console';
-	};
+	function run() {
+		const project = projectState.project;
+
+		// Check for duplicate or invalid component names.
+		const names = new Set<string>();
+
+		for (const component of project.components) {
+			if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(component.name)) {
+				projectState.addMessage('error', `Invalid component name: ${component.name}`);
+				activeTab = 'console';
+				return;
+			}
+
+			if (names.has(component.name)) {
+				projectState.addMessage('error', `Duplicate component name: ${component.name}`);
+				activeTab = 'console';
+				return;
+			}
+
+			names.add(component.name);
+		}
+
+		simulationModal?.showModal();
+
+		simulator.run(project.code, project.components);
+	}
 </script>
 
 <div class="flex h-full flex-col gap-4">
@@ -88,8 +112,6 @@
 				tabindex={activeTab === 'code' ? 0 : undefined}
 				hidden={activeTab !== 'code'}
 			>
-				<!-- <h2 class="font-mono">main.lua</h2>
-				<CodeEditor {code} {onCodeChange} {components} /> -->
 				<CodeTab onRun={run} />
 			</div>
 			<div
@@ -115,6 +137,8 @@
 		{/if}
 	</div>
 </div>
+
+<SimulationModal bind:dialog={simulationModal} />
 
 <style>
 	.loader {
