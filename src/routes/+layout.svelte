@@ -6,6 +6,10 @@
 	import { PersistedState } from 'runed';
 	import type { Project, SavedProjects } from '#lib/types/project.ts';
 	import LoadProjectsModal from '#lib/components/load-projects-modal.svelte';
+	import { dev } from '$app/env';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
+
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
 
 	const STORAGE_KEY = 'esp32-lua-lab:projects';
 	let { children }: LayoutProps = $props();

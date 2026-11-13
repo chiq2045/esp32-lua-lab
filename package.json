@@ -44,6 +44,7 @@
 		"@codemirror/view": "^6.43.15",
 		"@codincod/codemirror-lang-lua": "^0.3.0",
 		"@uiw/codemirror-themes-all": "^4.25.12",
+		"@vercel/analytics": "^2.0.1",
 		"@wokwi/elements": "^1.9.2",
 		"codemirror": "^6.0.2",
 		"fengari": "^0.1.5",
