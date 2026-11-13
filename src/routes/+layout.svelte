@@ -11,8 +11,10 @@
 	let { children }: LayoutProps = $props();
 
 	const savedProjects = new PersistedState<SavedProjects>(STORAGE_KEY, {});
-	let savedTimer = null;
+	let savedTimer = $state<NodeJS.Timeout | null>(null);
+	let needToSaveTimer = $state<NodeJS.Timeout | null>(null);
 	let showSavedMessage = $state(false);
+	let showSaveAura = $state(false);
 
 	const saveProject = (project: Project) => {
 		savedProjects.current[project.name] = $state.snapshot(project);
@@ -20,6 +22,7 @@
 			showSavedMessage = false;
 		}, 5000);
 		showSavedMessage = true;
+		showSaveAura = false;
 	};
 
 	const loadProject = (projectName: string) => {
@@ -36,6 +39,15 @@
 
 	let loadProjectDialog = $state<HTMLDialogElement | null>(null);
 	let projects = $state<string[]>([]);
+
+	$effect(() => {
+		if (projectState.dirty) {
+			needToSaveTimer = setTimeout(() => {
+				showSaveAura = true;
+			}, 60000);
+			showSaveAura = false;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -67,29 +79,32 @@
 			</div>
 		</div>
 		<div class="navbar-end gap-2">
-			<button
-				class="btn btn-soft btn-neutral"
-				onclick={() => {
-					projectState.save();
-					saveProject(projectState.project);
-				}}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="size-6"
+			<!-- <div class={showSaveAura && projectState.dirty ? 'aura' : ''}> -->
+			<div class={showSaveAura && projectState.dirty ? 'aura' : ''}>
+				<button
+					class="btn btn-accent"
+					onclick={() => {
+						projectState.save();
+						saveProject(projectState.project);
+					}}
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-					/>
-				</svg>
-				<span>Save</span>
-			</button>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+						/>
+					</svg>
+					<span>Save</span>
+				</button>
+			</div>
 			<button
 				class="btn btn-soft btn-neutral"
 				onclick={() => {
@@ -119,6 +134,5 @@
 
 <main class="h-full grow bg-base-200 p-2 md:p-4">
 	{@render children()}
-
 	<LoadProjectsModal bind:dialog={loadProjectDialog} {loadProject} {projects} />
 </main>
