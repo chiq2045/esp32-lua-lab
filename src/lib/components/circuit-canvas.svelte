@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { projectState } from '#lib/state/project.svelte.ts';
+	import type { CircuitComponent } from '#lib/types/project.ts';
 
 	let {
 		selectedId = $bindable<string | null>(null)
@@ -12,9 +13,92 @@
 	let dragging = $state<string | null>(null);
 	let offset = { x: 0, y: 0 };
 
-	const board = { x: 35, y: 95, width: 110, height: 210 };
+	const BOARD_WIDTH = 107;
+	const BOARD_HEIGHT = 201;
+
 	const componentWidth = 110;
 	const componentHeight = 105;
+
+	// Wokwi ESP32 DevKit V1 pin positions.
+	// Values are relative to the board's top-left corner.
+	// Derived from the board's 28.2mm x 53mm layout.
+	const LEFT_PINS = [39, 36, 34, 35, 32, 33, 25, 26, 27, 14, 12, 13];
+
+	const RIGHT_PINS = [23, 22, 1, 3, 21, 19, 18, 5, 17, 16, 4, 2, 15];
+
+	const PIN_SPACING = 2.54 * (BOARD_HEIGHT / 53);
+	const PIN_START_Y = 5.8 * (BOARD_HEIGHT / 53);
+
+	let canvasWidth = $state(700);
+
+	const board = $derived({
+		x: Math.max(0, (canvasWidth - BOARD_WIDTH) / 2),
+		y: 145,
+		width: BOARD_WIDTH,
+		height: BOARD_HEIGHT
+	});
+
+	type Point = {
+		x: number;
+		y: number;
+	};
+
+	function getBoardPin(pin: number | 'GND'): Point | null {
+		if (pin === 'GND') {
+			return {
+				x: board.x + BOARD_WIDTH * (26.8 / 28.2),
+				y: board.y + BOARD_HEIGHT * (38.82 / 53)
+			};
+		}
+
+		const leftIndex = LEFT_PINS.indexOf(pin);
+
+		if (leftIndex !== -1) {
+			return {
+				x: board.x + BOARD_WIDTH * (1.27 / 28.2),
+				y: board.y + PIN_START_Y + (leftIndex + 1) * PIN_SPACING
+			};
+		}
+
+		const rightIndex = RIGHT_PINS.indexOf(pin);
+
+		if (rightIndex !== -1) {
+			return {
+				x: board.x + BOARD_WIDTH * (26.8 / 28.2),
+				y: board.y + PIN_START_Y + rightIndex * PIN_SPACING
+			};
+		}
+
+		return null;
+	}
+
+	function getComponentPin(component: CircuitComponent): Point {
+		// Approximate connection point on the component graphic.
+		// We'll refine these for LED anode/cathode and button terminals.
+		return {
+			x: component.x + componentWidth / 2,
+			y: component.y + 34
+		};
+	}
+
+	function getWirePath(component: CircuitComponent): string {
+		if (component.pin === undefined) return '';
+
+		const start = getBoardPin(component.pin);
+		if (!start) return '';
+
+		const end = getComponentPin(component);
+
+		const direction = end.x < start.x ? -1 : 1;
+		const bend = Math.max(30, Math.abs(end.x - start.x) / 2);
+
+		return [
+			`M ${start.x} ${start.y}`,
+			`C ${start.x + bend * direction} ${start.y},`,
+			`${end.x - bend * direction} ${end.y},`,
+			`${end.x} ${end.y}`
+		].join(' ');
+	}
 
 	const components = $derived(projectState.project.components);
 
@@ -64,20 +148,27 @@
 	});
 </script>
 
-<div class="circuit-canvas" bind:this={canvas}>
+<div class="circuit-canvas" bind:this={canvas} bind:clientWidth={canvasWidth}>
 	<!-- Logical GPIO wires -->
+
+	<!-- Wires connected to ESP32 GPIO pins -->
 	<svg class="wire-layer" aria-hidden="true">
 		{#each components.filter((c) => c.pin !== undefined) as component (component.id)}
-			<path
-				d={`M ${board.x + board.width} ${board.y + 50}
-            C ${board.x + 210} ${board.y + 50},
-              ${component.x - 70} ${component.y + 50},
-              ${component.x} ${component.y + 50}`}
-				fill="none"
-				stroke="#5e81ac"
-				stroke-width="3"
-				stroke-linecap="round"
-			/>
+			{#if getBoardPin(component.pin!)}
+				<path
+					d={getWirePath(component)}
+					fill="none"
+					stroke="#5e81ac"
+					stroke-width="2.5"
+					stroke-linecap="round"
+				/>
+
+				{@const point = getBoardPin(component.pin!)}
+
+				{#if point}
+					<circle cx={point.x} cy={point.y} r="3.5" fill="#5e81ac" />
+				{/if}
+			{/if}
 		{/each}
 	</svg>
 
@@ -148,7 +239,7 @@
 
 	.esp32-board {
 		position: absolute;
-		width: 110px;
+		width: 107px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -157,8 +248,7 @@
 
 	.esp32-board wokwi-esp32-devkit-v1 {
 		display: block;
-		transform: scale(0.8);
-		transform-origin: top center;
+		transform: none;
 	}
 
 	.board-label {
