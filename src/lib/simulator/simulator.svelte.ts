@@ -17,6 +17,8 @@ const createSimulator = () => {
 	let runtimeTimer: ReturnType<typeof setTimeout> | null = null;
 	let clockTimer: ReturnType<typeof setInterval> | null = null;
 
+	let messageStartIndex = $state(0);
+
 	const cleanup = () => {
 		if (runtimeTimer !== null) clearTimeout(runtimeTimer);
 		if (clockTimer !== null) clearInterval(clockTimer);
@@ -77,6 +79,7 @@ const createSimulator = () => {
 		startedAt = Date.now();
 		ledStates = {};
 		buttonStates = {};
+		messageStartIndex = projectState.messages.length;
 
 		const currentWorker = new Worker(new URL('./lua.worker.ts', import.meta.url), {
 			type: 'module'
@@ -147,6 +150,9 @@ const createSimulator = () => {
 		},
 		get buttonStates() {
 			return buttonStates;
+		},
+		get messageStartIndex() {
+			return messageStartIndex;
 		},
 
 		run,

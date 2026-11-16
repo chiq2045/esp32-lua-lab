@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { simulator } from './simulator.svelte';
 	import Modal from '#lib/components/modal.svelte';
+	import MiniConsole from '#lib/components/mini-console.svelte';
 
 	let {
 		dialog = $bindable()
@@ -43,7 +44,7 @@
 		{/if}
 		<span>Elapsed: {formatElapsed(simulator.elapsedMs)}</span>
 		<form method="dialog">
-			<button class="btn btn-error" disabled={simulator.status !== 'running'}>
+			<button class="btn btn-error">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -105,7 +106,7 @@
 			{/each}
 		</div>
 	</div>
-
+	<MiniConsole />
 	{#if !loaded}
 		<p class="p-4">Loading circuit components...</p>
 	{/if}
