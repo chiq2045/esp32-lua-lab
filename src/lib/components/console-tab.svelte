@@ -1,37 +1,60 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { projectState } from '#lib/state/project.svelte.ts';
+
+	let output: HTMLDivElement;
+	let autoScroll = $state(true);
+
+	const messages = $derived(projectState.messages);
+
+	// Scroll to the newest message when output changes.
+	$effect(() => {
+		messages.length;
+
+		if (autoScroll) {
+			tick().then(() => {
+				output?.scrollTo({
+					top: output.scrollHeight,
+					behavior: 'instant'
+				});
+			});
+		}
+	});
 </script>
 
-<div class="space-y-4">
-	<header class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">Console</h2>
+<div class="flex h-full min-h-0 flex-col gap-3 p-4">
+	<div class="flex items-center justify-between">
+		<div>
+			<h2 class="text-lg font-semibold">Console</h2>
+			<p class="text-sm opacity-60">Output from your Lua program</p>
+		</div>
 
-		<button class="rounded border px-3 py-2" onclick={() => projectState.clearMessages()}>
-			Clear
-		</button>
-	</header>
+		<div class="flex items-center gap-3">
+			<label class="flex cursor-pointer items-center gap-2 text-sm">
+				<input type="checkbox" class="checkbox checkbox-sm" bind:checked={autoScroll} />
+				Auto-scroll
+			</label>
+
+			<button class="btn btn-outline btn-sm" onclick={() => projectState.clearMessages()}>
+				Clear
+			</button>
+		</div>
+	</div>
 
 	<div
-		class="h-96 overflow-auto rounded bg-slate-950 p-4
-           font-mono text-sm text-slate-200"
+		bind:this={output}
+		class="min-h-0 flex-1 overflow-y-auto rounded-lg bg-base-300 p-4 font-mono text-sm"
 		role="log"
-		aria-live="off"
+		aria-label="Lua console output"
 	>
-		{#each projectState.messages as message (message.id)}
-			<div class="mb-1">
-				<span class="text-slate-500">
-					{new Date(message.timestamp).toLocaleTimeString()}
-				</span>
-
-				<span
-					class:text-red-400={message.level === 'error'}
-					class:text-green-400={message.level === 'output'}
-				>
-					{message.text}
-				</span>
-			</div>
+		{#if messages.length === 0}
+			<p class="opacity-50">Run your program to see output here.</p>
 		{:else}
-			<p class="text-slate-500">Console output will appear here.</p>
-		{/each}
+			{#each messages as message, index (index)}
+				<div class="py-0.5 wrap-break-word whitespace-pre-wrap">
+					{message.text}
+				</div>
+			{/each}
+		{/if}
 	</div>
 </div>

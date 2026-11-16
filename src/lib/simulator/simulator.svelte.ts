@@ -104,6 +104,7 @@ const createSimulator = () => {
 			components: $state.snapshot(components)
 		};
 
+		console.log(message);
 		// Set running immediately, so the modal shows
 		// a running state while the worker initializes.
 		status = 'running';

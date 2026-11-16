@@ -125,10 +125,10 @@
 			</div>
 			<div
 				role="tabpanel"
-				id="settings-view"
-				aria-labelledby="settings-view-button"
-				tabindex={activeTab === 'settings' ? 0 : undefined}
-				hidden={activeTab !== 'settings'}
+				id="console-view"
+				aria-labelledby="console-view-button"
+				tabindex={activeTab === 'console' ? 0 : undefined}
+				hidden={activeTab !== 'console'}
 			>
 				<ConsoleTab />
 			</div>
