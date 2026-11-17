@@ -5,7 +5,8 @@
 	"type": "module",
 	"imports": {
 		"#lib": "./src/lib/index.js",
-		"#lib/*": "./src/lib/*"
+		"#lib/*": "./src/lib/*",
+		"#convex/*": "./src/convex/*"
 	},
 	"scripts": {
 		"dev": "vite dev",
@@ -50,6 +51,7 @@
 		"convex-svelte": "^0.15.1",
 		"fengari": "^0.1.5",
 		"fengari-web": "^0.1.4",
-		"runed": "^0.38.0"
+		"runed": "^0.38.0",
+		"svelte-markdown": "^0.4.1"
 	}
 }

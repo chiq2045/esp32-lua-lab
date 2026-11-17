@@ -1,9 +1,11 @@
 <script lang="ts">
+	import AssignmentInstructions from '#lib/components/assignment-instructions.svelte';
 	import CodeTab from '#lib/components/code-tab.svelte';
 	import ConsoleTab from '#lib/components/console-tab.svelte';
 	import DesignTab from '#lib/components/design-tab.svelte';
 	import SimulationModal from '#lib/simulator/simulation-modal.svelte';
 	import { simulator } from '#lib/simulator/simulator.svelte.ts';
+	import { assignments } from '#lib/state/assignments.svelte.ts';
 	import { projectState } from '#lib/state/project.svelte.ts';
 	import type { Tab, TabLabel } from '#lib/types/tabs.ts';
 	import { onMount } from 'svelte';
@@ -85,7 +87,20 @@
 </script>
 
 <div class="flex h-full flex-col gap-4">
-	<div class="flex flex-row justify-between gap-2">Controls</div>
+	<div class="mb-3 flex flex-row justify-between gap-2">
+		{#if assignments.selectedAssignment}
+			{#if assignments.showInstructions}
+				<AssignmentInstructions
+					assignment={assignments.selectedAssignment}
+					onClose={assignments.closeInstructions}
+				/>
+			{:else}
+				<button class="btn btn-ghost btn-sm" onclick={assignments.openInstructions}>
+					Show instructions: {assignments.selectedAssignment.title}
+				</button>
+			{/if}
+		{/if}
+	</div>
 	<div class="tabs tabs-box" role="tablist" aria-label="Views">
 		{#each tabs as tab}
 			<button

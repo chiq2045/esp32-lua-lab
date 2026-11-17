@@ -6,6 +6,10 @@
 	import { PersistedState } from 'runed';
 	import type { Project, SavedProjects } from '#lib/types/project.ts';
 	import LoadProjectsModal from '#lib/components/load-projects-modal.svelte';
+	import AssignmentSelector from '#lib/components/assignment-selector.svelte';
+	import AssignmentInstructions from '#lib/components/assignment-instructions.svelte';
+	import { setContext } from 'svelte';
+	import { assignments } from '#lib/state/assignments.svelte.ts';
 
 	const STORAGE_KEY = 'esp32-lua-lab:projects';
 	let { children }: LayoutProps = $props();
@@ -15,6 +19,8 @@
 	let needToSaveTimer = $state<NodeJS.Timeout | null>(null);
 	let showSavedMessage = $state(false);
 	let showSaveAura = $state(false);
+
+	setContext('selectedAssignment', assignments.selectedAssignment);
 
 	const saveProject = (project: Project) => {
 		savedProjects.current[project.name] = $state.snapshot(project);
@@ -128,6 +134,9 @@
 				</svg>
 				<span>Load</span>
 			</button>
+			<button class="btn btn-outline btn-sm" onclick={assignments.openAssignmentSelector}>
+				Assignments
+			</button>
 		</div>
 	</nav>
 </header>
@@ -135,4 +144,10 @@
 <main class="h-full grow bg-base-200 p-2 md:p-4">
 	{@render children()}
 	<LoadProjectsModal bind:dialog={loadProjectDialog} {loadProject} {projects} />
+	<AssignmentSelector
+		onSelect={(assignment) => {
+			assignments.updateSelectedAssignment(assignment);
+			assignments.openInstructions();
+		}}
+	/>
 </main>
