@@ -46,6 +46,8 @@
 		"@uiw/codemirror-themes-all": "^4.25.12",
 		"@wokwi/elements": "^1.9.2",
 		"codemirror": "^6.0.2",
+		"convex": "^1.50.0",
+		"convex-svelte": "^0.15.1",
 		"fengari": "^0.1.5",
 		"fengari-web": "^0.1.4",
 		"runed": "^0.38.0"
