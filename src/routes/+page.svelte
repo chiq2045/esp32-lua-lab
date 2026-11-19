@@ -89,16 +89,7 @@
 <div class="flex h-full flex-col gap-4">
 	<div class="mb-3 flex flex-row justify-between gap-2">
 		{#if assignments.selectedAssignment}
-			{#if assignments.showInstructions}
-				<AssignmentInstructions
-					assignment={assignments.selectedAssignment}
-					onClose={assignments.closeInstructions}
-				/>
-			{:else}
-				<button class="btn btn-ghost btn-sm" onclick={assignments.openInstructions}>
-					Show instructions: {assignments.selectedAssignment.title}
-				</button>
-			{/if}
+			<AssignmentInstructions assignment={assignments.selectedAssignment} />
 		{/if}
 	</div>
 	<div class="tabs tabs-box" role="tablist" aria-label="Views">
